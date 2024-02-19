@@ -1,6 +1,7 @@
 #include<iostream>
 #include<fstream>  // for file handling
 #include<bitset>  
+#include<unordered_map>
 using namespace std;
 
 // main class for all the instructions
@@ -28,6 +29,73 @@ class instructions{
         }
     }
 };
+
+// class label for label in instructions and labels
+class label{
+    public:
+
+    string name; // label name
+    int pc=0;  // goto pc of label
+
+};
+
+// class for assembler directives
+class directives{
+    public:
+    string name;  //directive name
+
+};
+
+class text : public directives{
+    public:
+    text(){
+        name=".text";
+    }
+};
+
+class data : public directives{
+    public:
+    data(){
+        name=".data";
+    }
+};
+
+class word : public directives{
+    public:
+    word(){
+        name=".word";
+    }
+};
+
+class half : public directives{
+    public:
+    half(){
+        name=".half";
+    }
+};
+
+class byte : public directives{
+    public:
+    byte(){
+        name=".byte";
+    }
+};
+
+class dword : public directives{
+    public:
+    dword(){
+        name=".dword";
+    }
+};
+
+class asciz : public directives{
+    public:
+    asciz(){
+        name=".asciz";
+    }
+};
+
+// classes for type of instructions
 
 // class for R type instructions inheriting instuctions class publicly
 class R:public instructions{
@@ -73,7 +141,7 @@ class R:public instructions{
         }
         i++;
         registerValue="";
-        while(line[i]!=' ' and line[i]!=','){
+        while(i<line.size() and line[i]!=' '){
             registerValue+=line[i];
             i++;
         }
@@ -151,7 +219,7 @@ class I:public instructions{
             i++;
         }
         string immValue="";
-        while(line[i]!=' ' and line[i]!=','){
+        while(i<line.size() and line[i]!=' '){
             immValue+=line[i];
             i++;
         }
@@ -227,6 +295,289 @@ class I:public instructions{
     }
 
 };
+
+// class for S type instructions inheriting instuctions class publicly
+class S:public instructions{
+    public:
+    bitset<12> imm;     // to store imm value
+    bitset<3> func3;    // to store func3 value
+    bitset<5> rs1;      // to store source register 1 value
+    bitset<5> rs2;      // to store source register 2 value
+    
+    // function to fetch rs1,imm,rs2 fields of the S type instruction
+    void fetchInstructionDetails(string line,int i){
+        //fetching rs2
+        while(line[i]!='x'){
+            i++;
+        }
+        i++;
+        string registerValue="";
+        while(line[i]!=' ' and line[i]!=','){
+            registerValue+=line[i];
+            i++;
+        }
+        int registerValueInDecimal=stoi(registerValue);
+        rs2=registerValueInDecimal;
+
+        // fetching imm
+        while(!isdigit(line[i])){
+            i++;
+        }
+        string immValue="";
+        while(line[i]!=' ' and line[i]!='('){
+            immValue+=line[i];
+            i++;
+        }
+        int immValueInDecimal=stoi(immValue);
+        imm=immValueInDecimal;
+
+        // fetching rs1
+        while(line[i]!='x'){
+            i++;
+        }
+        i++;
+        registerValue="";
+        while(line[i]!=' ' and line[i]!=')'){
+            registerValue+=line[i];
+            i++;
+        }
+        registerValueInDecimal=stoi(registerValue);
+        rs1=registerValueInDecimal;
+
+        return;
+    }
+
+    // function to make instruction to binary 32 bit format joining all different fields
+    void convertTo32bit(){
+        int idx=0;
+        for(;idx<7;idx++){
+            instructionIn32bit[idx]=opcode[idx];
+        }
+        for(;idx<12;idx++){
+            instructionIn32bit[idx]=imm[idx-7];     // imm[4:0]
+        }
+        for(;idx<15;idx++){
+            instructionIn32bit[idx]=func3[idx-12];
+        }
+        for(;idx<20;idx++){
+            instructionIn32bit[idx]=rs1[idx-15];
+        }
+        for(;idx<25;idx++){
+            instructionIn32bit[idx]=rs2[idx-20];
+        }
+        for(;idx<32;idx++){
+            instructionIn32bit[idx]=imm[idx-20];    // imm[11:5]
+        }
+        return;
+    }
+
+};
+
+// class for SB type instructions inheriting instuctions class publicly
+class SB:public instructions{
+    public:
+    bitset<12> imm;     // to store imm value
+    bitset<3> func3;    // to store func3 value
+    bitset<5> rs1;      // to store source register 1 value
+    bitset<5> rs2;      // to store source register 2 value
+    
+    // function to fetch rs1,imm,rs2 fields of the SB type instruction
+    void fetchInstructionDetails(string line,int i,unordered_map<string,int> labelMap,int currPC){
+
+        //fetching rs1
+        while(line[i]!='x'){
+            i++;
+        }
+        i++;
+        string registerValue="";
+        while(line[i]!=' ' and line[i]!=','){
+            registerValue+=line[i];
+            i++;
+        }
+        int registerValueInDecimal=stoi(registerValue);
+        rs1=registerValueInDecimal;
+
+        // fetching rs2
+        while(line[i]!='x'){
+            i++;
+        }
+        i++;
+        registerValue="";
+        while(line[i]!=' ' and line[i]!=','){
+            registerValue+=line[i];
+            i++;
+        }
+        registerValueInDecimal=stoi(registerValue);
+        rs2=registerValueInDecimal;
+
+        // fetching imm
+        while(line[i]!=','){
+            i++;
+        }
+        i++;
+        while(line[i]==' ')  i++;
+        string Label="";
+        while(i<line.size() and line[i]!=' '){
+            Label+=line[i];
+            i++;
+        }
+        auto it = labelMap.find(Label);
+        if(it!=labelMap.end()){
+            int labelPc=it->second;
+            imm=(labelPc-currPC)/2;
+        }
+        return;
+    }
+
+    // function to make instruction to binary 32 bit format joining all different fields
+    void convertTo32bit(){
+        int idx=0;
+        for(;idx<7;idx++){
+            instructionIn32bit[idx]=opcode[idx];
+        }
+        instructionIn32bit[idx]=imm[10];      // imm[11]
+        idx++;
+        for(;idx<12;idx++){
+            instructionIn32bit[idx]=imm[idx-8];     // imm[4:1]
+        }
+        for(;idx<15;idx++){
+            instructionIn32bit[idx]=func3[idx-12];
+        }
+        for(;idx<20;idx++){
+            instructionIn32bit[idx]=rs1[idx-15];
+        }
+        for(;idx<25;idx++){
+            instructionIn32bit[idx]=rs2[idx-20];
+        }
+        for(;idx<31;idx++){
+            instructionIn32bit[idx]=imm[idx-21];    // imm[10:5]
+        }
+        instructionIn32bit[idx]=imm[11];      // imm[12]
+        return;
+    }
+
+};
+
+// class for U type instructions inheriting instuctions class publicly
+class U:public instructions{
+    public:
+    bitset<5> rd;         // to store destination register value
+    bitset<20> imm;       // to store immediate field value
+    
+    // function to fetch rd,imm fields of the I type instruction of type rd,rs1,imm
+    void fetchInstructionDetails(string line,int i){
+
+        //fetching rd
+        while(line[i]!='x'){
+            i++;
+        }
+        i++;
+        string registerValue="";
+        while(line[i]!=' ' and line[i]!=','){
+            registerValue+=line[i];
+            i++;
+        }
+        int registerValueInDecimal=stoi(registerValue);
+        rd=registerValueInDecimal;
+
+        // fetching imm
+        while(!isdigit(line[i])){
+            i++;
+        }
+        string immValue="";
+        while(i<line.size() and line[i]!=' '){
+            immValue+=line[i];
+            i++;
+        }
+        int immValueInDecimal=stoi(immValue);
+        imm=immValueInDecimal;
+
+        return;
+    }
+
+    // function to make instruction to binary 32 bit format joining all different fields
+    void convertTo32bit(){
+        int idx=0;
+        for(;idx<7;idx++){
+            instructionIn32bit[idx]=opcode[idx];
+        }
+        for(;idx<12;idx++){
+            instructionIn32bit[idx]=rd[idx-7];
+        }
+        for(;idx<32;idx++){
+            instructionIn32bit[idx]=imm[idx-12];
+        }
+        return;
+    }
+
+};
+
+// class for UJ type instructions inheriting instuctions class publicly
+class UJ:public instructions{
+    public:
+    bitset<5> rd;    // to store destination register value
+    bitset<20> imm;     // to store imm value
+    
+    // function to fetch rd,imm fields of the UJ type instruction
+    void fetchInstructionDetails(string line,int i,unordered_map<string,int> labelMap,int currPC){
+
+        //fetching rd
+        while(line[i]!='x'){
+            i++;
+        }
+        i++;
+        string registerValue="";
+        while(line[i]!=' ' and line[i]!=','){
+            registerValue+=line[i];
+            i++;
+        }
+        int registerValueInDecimal=stoi(registerValue);
+        rd=registerValueInDecimal;
+
+        // fetching imm
+        while(line[i]!=','){
+            i++;
+        }
+        i++;
+        while(line[i]==' ')  i++;
+        string Label="";
+        while(i<line.size() and line[i]!=' '){
+            Label+=line[i];
+            i++;
+        }
+        auto it = labelMap.find(Label);
+        if(it!=labelMap.end()){
+            int labelPc=it->second;
+            imm=(labelPc-currPC)/2;
+        }
+        return;
+    }
+
+    // function to make instruction to binary 32 bit format joining all different fields
+    void convertTo32bit(){
+        int idx=0;
+        for(;idx<7;idx++){
+            instructionIn32bit[idx]=opcode[idx];
+        }
+        for(;idx<12;idx++){
+            instructionIn32bit[idx]=rd[idx-7];
+        }
+        for(;idx<20;idx++){
+            instructionIn32bit[idx]=imm[idx-1];     //imm[19:12]
+        }
+        instructionIn32bit[idx]=imm[10];   // imm[11]
+        idx++;
+        for(;idx<31;idx++){
+            instructionIn32bit[idx]=imm[idx-21];    // imm[10:1]
+        }
+        instructionIn32bit[idx]=imm[19];      // imm[20]
+        
+        return;
+    }
+
+};
+
+// classes for individual instructions
 
 // class for add instructions inheriting R publicly
 class add:public R{
@@ -420,14 +771,112 @@ class jalr: public I{
     }
 };
 
+// class for sb instructions inheriting S publicly
+class sb: public S{
+    public:
+    sb(){
+        opcode=35;
+        func3=0;
+    }
+};
+
+// class for sw instructions inheriting S publicly
+class sw: public S{
+    public:
+    sw(){
+        opcode=35;
+        func3=2;
+    }
+};
+
+// class for sd instructions inheriting S publicly
+class sd: public S{
+    public:
+    sd(){
+        opcode=35;
+        func3=3;
+    }
+};
+
+// class for sh instructions inheriting S publicly
+class sh: public S{
+    public:
+    sh(){
+        opcode=35;
+        func3=1;
+    }
+};
+
+// class for beq instructions inheriting SB publicly
+class beq: public SB{
+    public:
+    beq(){
+        opcode=99;
+        func3=0;
+    }
+};
+
+// class for bne instructions inheriting SB publicly
+class bne: public SB{
+    public:
+    bne(){
+        opcode=99;
+        func3=1;
+    }
+};
+
+// class for bge instructions inheriting SB publicly
+class bge: public SB{
+    public:
+    bge(){
+        opcode=99;
+        func3=5;
+    }
+};
+
+// class for blt instructions inheriting SB publicly
+class blt: public SB{
+    public:
+    blt(){
+        opcode=99;
+        func3=4;
+    }
+};
+
+// class for auipc instructions inheriting U publicly
+class auipc: public U{
+    public:
+    auipc(){
+        opcode=23;
+    }
+};
+
+// class for lui instructions inheriting U publicly
+class lui: public U{
+    public:
+    lui(){
+        opcode=55;
+    }
+};
+
+// class for jal instructions inheriting UJ publicly
+class jal: public UJ{
+    public:
+    jal(){
+        opcode=111;
+    }
+};
+
 //class to make machine code for whole program
 class makeMC{
     public:
 
-    bitset<32> pc=0;
-    string pcInHex;
+    bitset<32> pc=0;       // to store pc
+    string pcInHex;        // to store pc in hex
+    unordered_map<string,int> labelMap;     // to store all labels along with their gotopc
 
-    void incrementPC(){
+    // function to increment pc by 4
+    void incrementPC(bitset<32> &pc){
         for(int i=2;i<32;i++){
             if(pc[i]==0){
                 pc[i]=1;
@@ -467,9 +916,41 @@ class makeMC{
         return;
     }
 
+    // to check if the label is correctly made in input.asm
+    bool checkLabel(string line){
+        int i=line.size();
+        while(line[i]!=':'){
+            i--;
+            if(i<0)  return false;
+        }
+        return true;
+    }
+
+    // to store label name and its corresponding gotopc in labelmap
+    void makeLabel(string line){
+            int i=0;
+            string labelName="";
+            while(line[i]!=' ' && line[i]!=':'){
+                labelName+=line[i];
+                i++;
+            }
+            while(line[i]!=':'){
+                i++;
+            }
+            for(int j=i+1;j<line.size();j++){
+                if(line[j]!=' ')  return;
+            }
+            label * newLabel = new label();
+            newLabel->pc=this->pc.to_ulong();
+            newLabel->name=labelName;
+            labelMap[labelName]=newLabel->pc;
+        return;
+    }
+
     // function to check if the instruction is right or not and which instruction is it
     string checkInstruction(string line){
         int i=0;
+        while(line[i]==' ')  i++;
         // fetching instruction name in instruct
         string instruct="";
         while(line[i]!=' '){
@@ -645,20 +1126,124 @@ class makeMC{
             return jalrInstruction->instructionInHex;   // returning mc in hex
         }
 
+        else if (instruct == "sb") {
+            sb *sbInstruction = new sb();    // making an object of class sb
+            sbInstruction->fetchInstructionDetails(line, i);   // fetching fields
+            sbInstruction->convertTo32bit();  // converting to 32-bit code
+            sbInstruction->binToHex();    // converting to hex
+            return sbInstruction->instructionInHex;   // returning mc in hex
+            } 
+            
+        else if (instruct == "sw") {
+            sw *swInstruction = new sw();    // making an object of class sw
+            swInstruction->fetchInstructionDetails(line, i);   // fetching fields
+            swInstruction->convertTo32bit();  // converting to 32-bit code
+            swInstruction->binToHex();    // converting to hex
+            return swInstruction->instructionInHex;   // returning mc in hex
+        }
+
+        else if (instruct == "sd") {
+            sd *sdInstruction = new sd();    // making an object of class sd
+            sdInstruction->fetchInstructionDetails(line, i);   // fetching fields
+            sdInstruction->convertTo32bit();  // converting to 32-bit code
+            sdInstruction->binToHex();    // converting to hex
+            return sdInstruction->instructionInHex;   // returning mc in hex
+        }
+
+        else if (instruct == "sh") {
+            sh *shInstruction = new sh();    // making an object of class sh
+            shInstruction->fetchInstructionDetails(line, i);   // fetching fields
+            shInstruction->convertTo32bit();  // converting to 32-bit code
+            shInstruction->binToHex();    // converting to hex
+            return shInstruction->instructionInHex;   // returning mc in hex
+        }
+
+        else if (instruct == "beq") {
+            beq *beqInstruction = new beq();    // making an object of class beq
+            beqInstruction->fetchInstructionDetails(line, i ,labelMap,this->pc.to_ulong());   // fetching fields
+            beqInstruction->convertTo32bit();  // converting to 32-bit code
+            beqInstruction->binToHex();    // converting to hex
+            return beqInstruction->instructionInHex;   // returning mc in hex
+        }
+
+        else if (instruct == "bne") {
+            bne *bneInstruction = new bne();  // Creating a new object of type bne
+            bneInstruction->fetchInstructionDetails(line, i, labelMap, this->pc.to_ulong()); // Fetching instruction details
+            bneInstruction->convertTo32bit(); // Converting instruction to 32-bit code
+            bneInstruction->binToHex(); // Converting binary code to hexadecimal
+            return bneInstruction->instructionInHex; // Returning the instruction in hexadecimal format
+        }
+
+        else if (instruct == "bge") {
+            bge *bgeInstruction = new bge();  // Creating a new object of type bge
+            bgeInstruction->fetchInstructionDetails(line, i, labelMap, this->pc.to_ulong()); // Fetching instruction details
+            bgeInstruction->convertTo32bit(); // Converting instruction to 32-bit code
+            bgeInstruction->binToHex(); // Converting binary code to hexadecimal
+            return bgeInstruction->instructionInHex; // Returning the instruction in hexadecimal format
+        }
+
+        else if (instruct == "blt") {
+            blt *bltInstruction = new blt();  // Creating a new object of type blt
+            bltInstruction->fetchInstructionDetails(line, i, labelMap, this->pc.to_ulong()); // Fetching instruction details
+            bltInstruction->convertTo32bit(); // Converting instruction to 32-bit code
+            bltInstruction->binToHex(); // Converting binary code to hexadecimal
+            return bltInstruction->instructionInHex; // Returning the instruction in hexadecimal format
+        }
+
+        else if (instruct == "auipc") {
+            auipc *auipcInstruction = new auipc();  // Creating a new object of type auipc
+            auipcInstruction->fetchInstructionDetails(line, i); // Fetching instruction details
+            auipcInstruction->convertTo32bit(); // Converting instruction to 32-bit code
+            auipcInstruction->binToHex(); // Converting binary code to hexadecimal
+            return auipcInstruction->instructionInHex; // Returning the instruction in hexadecimal format
+        }
+
+        else if (instruct == "lui") {
+            lui *luiInstruction = new lui();  // Creating a new object of type lui
+            luiInstruction->fetchInstructionDetails(line, i); // Fetching instruction details
+            luiInstruction->convertTo32bit(); // Converting instruction to 32-bit code
+            luiInstruction->binToHex(); // Converting binary code to hexadecimal
+            return luiInstruction->instructionInHex; // Returning the instruction in hexadecimal format
+        }
+
+        else if (instruct == "jal") {
+            jal *jalInstruction = new jal();  // Creating a new object of type jal
+            jalInstruction->fetchInstructionDetails(line, i, labelMap, this->pc.to_ulong()); // Fetching instruction details
+            jalInstruction->convertTo32bit(); // Converting instruction to 32-bit code
+            jalInstruction->binToHex(); // Converting binary code to hexadecimal
+            return jalInstruction->instructionInHex; // Returning the instruction in hexadecimal format
+        }
+
         else return "error";   // return error if instruction doesnot match to any name
     }
 
-    // function to read from .asm file and rite to .mc file
+    // function to read from .asm file and write to .mc file
     void readAndWrite(){
         ifstream fin;    // to read a file
         ofstream fout;   // to write to a file
         string line;
+
+        fin.open("input.asm");       // open input.asm to read
+        // checking all labels only and storing them
+        while(getline(fin,line)){
+            if(checkLabel(line)){
+                makeLabel(line);
+            }
+            else  incrementPC(this->pc);
+        }
+        fin.close();    // close input.asm
+
+        this->pc=0;
+
         fin.open("input.asm");       // open input.asm to read
         fout.open("output.mc");     // open output.mc to write
+        // checking instructions only (not labels)
         while(getline(fin,line)){
-            binToHexPC();
-            fout<<pcInHex<<" "<<checkInstruction(line)<<endl;      // writing to output.mc
-            incrementPC();
+            if(!checkLabel(line)){
+                binToHexPC();
+                fout<<pcInHex<<" "<<checkInstruction(line)<<endl;      // writing to output.mc
+                incrementPC(this->pc);
+            }
         }
         fin.close();    // close input.asm
         fout.close();   // close output.mc
@@ -667,6 +1252,6 @@ class makeMC{
 
 int main(){
     makeMC *newMC=new makeMC();    // making object for makeMC class
-    newMC->readAndWrite();
+    newMC->readAndWrite();      // makes output.mc taking inputs from input.asm
     return 0;
 }
