@@ -78,7 +78,16 @@ class R:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        int registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        int registerValueInDecimal;
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -107,7 +116,15 @@ class R:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        registerValueInDecimal=stoi(registerValue);
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -136,7 +153,15 @@ class R:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        registerValueInDecimal=stoi(registerValue);
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -212,7 +237,16 @@ class I:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        int registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        int registerValueInDecimal;
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -241,7 +275,15 @@ class I:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        registerValueInDecimal=stoi(registerValue);
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -275,7 +317,16 @@ class I:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        int immValueInDecimal=stoi(immValue);
+        int immValueInDecimal;
+        try
+        {
+            immValueInDecimal=stoi(immValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(neg==true)  immValueInDecimal=-immValueInDecimal;
         if(immValueInDecimal>2047 or immValueInDecimal<-2048){
             cout<<"error at line "<<currLine<<endl;
@@ -318,7 +369,16 @@ class I:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        int registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        int registerValueInDecimal;
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -352,7 +412,16 @@ class I:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        int immValueInDecimal=stoi(immValue);
+        int immValueInDecimal;
+        try
+        {
+            immValueInDecimal=stoi(immValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(neg==true)  immValueInDecimal=-immValueInDecimal;
         if(immValueInDecimal>2047 or immValueInDecimal<-2048){
             cout<<"error at line "<<currLine<<endl;
@@ -398,7 +467,15 @@ class I:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        registerValueInDecimal=stoi(registerValue);
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -470,7 +547,16 @@ class S:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        int registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        int registerValueInDecimal;
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -504,7 +590,16 @@ class S:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        int immValueInDecimal=stoi(immValue);
+        int immValueInDecimal;
+        try
+        {
+            immValueInDecimal=stoi(immValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(neg==true)  immValueInDecimal=-immValueInDecimal;
         if(immValueInDecimal>2047 or immValueInDecimal<-2048){
             cout<<"error at line "<<currLine<<endl;
@@ -550,7 +645,15 @@ class S:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        registerValueInDecimal=stoi(registerValue);
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -626,7 +729,16 @@ class SB:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        int registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        int registerValueInDecimal;
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -655,7 +767,15 @@ class SB:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        registerValueInDecimal=stoi(registerValue);
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -750,7 +870,16 @@ class U:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        int registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        int registerValueInDecimal;
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -778,7 +907,16 @@ class U:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        int immValueInDecimal=stoi(immValue);
+        int immValueInDecimal;
+        try
+        {
+            immValueInDecimal=stoi(immValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(immValueInDecimal>1048575){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
@@ -843,7 +981,16 @@ class UJ:public instructions{
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
         }
-        int registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        int registerValueInDecimal;
+        try
+        {
+            registerValueInDecimal=stoi(registerValue);  // string to int conversion
+        }
+        catch(const std::exception& e)
+        {
+            cout<<"error at line "<<currLine<<endl;
+            exit(-1);
+        }
         if(registerValueInDecimal>31){
             cout<<"error at line "<<currLine<<endl;
             exit(-1);
